@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GameBoardCafe - Sistem Peminjaman</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-ornament">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+      <span class="grid-halo"></span>
+    </div>
+
+    <div class="login-screen" id="loginScreen">
+      <div class="login-card">
+        <h1>Masuk sebagai Petugas</h1>
+        <form id="loginForm">
+          <label class="field">
+            <span>Username</span>
+            <input
+              type="text"
+              id="loginUser"
+              required
+              placeholder="petugas01"
+              autocomplete="username"
+            />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input
+              type="password"
+              id="loginPass"
+              required
+              placeholder="********"
+              autocomplete="current-password"
+            />
+          </label>
+          <label class="inline">
+            <input type="checkbox" id="rememberMe" />
+            <span>Ingat perangkat ini</span>
+          </label>
+          <button class="btn primary" type="submit">Masuk</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="app hidden" id="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo">GBC</div>
+          <div>
+            <div class="brand-title">GameBoardCafe</div>
+            <div class="brand-sub">Pusat Peminjaman</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+          <button class="nav-btn" data-view="peminjaman">Peminjaman</button>
+          <button class="nav-btn" data-view="pengembalian">Pengembalian</button>
+          <button class="nav-btn" data-view="aset">Aset</button>
+          <button class="nav-btn" data-view="riwayat">Riwayat</button>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-card">
+            <div class="avatar">PT</div>
+            <div>
+              <div class="user-name" id="userName">Petugas</div>
+              <div class="user-role">Admin</div>
+            </div>
+          </div>
+          <button class="btn ghost small" id="logoutBtn">Keluar</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="search">
+            <input
+              type="search"
+              id="globalSearch"
+              placeholder="Cari aset, peminjam, atau ID"
+            />
+          </div>
+          <div class="topbar-actions">
+            <button class="btn ghost" data-nav="peminjaman">Peminjaman baru</button>
+            <button class="btn outline" data-nav="pengembalian">Pengembalian</button>
+          </div>
+        </header>
+
+        <section class="view active" id="view-dashboard">
+          <div class="hero">
+            <div class="hero-text">
+              <h1>Operasi cepat untuk peminjaman aset</h1>
+              <div class="panel hero-history">
+                <div class="panel-head">
+                  <h3>Riwayat terbaru</h3>
+                  <span class="badge">Singkat</span>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Peminjam</th>
+                        <th>Aset</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="heroHistoryTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="hero-card">
+              <div class="stat-grid">
+                <div class="stat-card">
+                  <span>Peminjaman aktif</span>
+                  <strong id="statActiveLoans">0</strong>
+                </div>
+                <div class="stat-card">
+                  <span>Fasilitas tersedia</span>
+                  <strong id="statAvailableFacilities">0</strong>
+                </div>
+                <div class="stat-card">
+                  <span>Perlengkapan tersedia</span>
+                  <strong id="statAvailableEquipment">0</strong>
+                </div>
+                <div class="stat-card">
+                  <span>Total aset</span>
+                  <strong id="statTotalAssets">0</strong>
+                </div>
+              </div>
+              <div class="notice">
+                <h3>Notifikasi WhatsApp</h3>
+                <div class="notice-badges">
+                  <span class="badge success">Aktif</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Peminjaman aktif</h3>
+                <span class="badge">Hari ini</span>
+              </div>
+              <div class="list" id="activeLoanList"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Aset tersedia</h3>
+                <span class="badge">Siap dipinjam</span>
+              </div>
+              <div class="list" id="availableAssetList"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Aturan bisnis</h3>
+                <span class="badge">Ringkas</span>
+              </div>
+              <div class="rule-list">
+                <div class="rule-item">
+                  <span class="rule-index">01</span>
+                  <div>
+                    <strong>Satu aset hanya untuk satu peminjam</strong>
+                    <p>Status berubah otomatis saat peminjaman.</p>
+                  </div>
+                </div>
+                <div class="rule-item">
+                  <span class="rule-index">02</span>
+                  <div>
+                    <strong>Pengembalian wajib diverifikasi</strong>
+                    <p>Catat kondisi akhir sebelum menyimpan.</p>
+                  </div>
+                </div>
+                <div class="rule-item">
+                  <span class="rule-index">03</span>
+                  <div>
+                    <strong>Bukti peminjaman otomatis</strong>
+                    <p>WhatsApp hanya notifikasi, bukan transaksi utama.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-peminjaman">
+          <div class="section-head">
+            <div>
+              <h2>Peminjaman baru</h2>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <button class="tab active" data-tab="fasilitas">Fasilitas</button>
+            <button class="tab" data-tab="perlengkapan">Perlengkapan</button>
+          </div>
+
+          <div class="form-layout">
+            <form class="panel" id="facilityForm">
+              <h3>Form peminjaman fasilitas</h3>
+              <div class="form-grid">
+                <label class="field">
+                  <span>Nama peminjam</span>
+                  <input type="text" id="facilityBorrower" required />
+                </label>
+                <label class="field">
+                  <span>Nomor HP</span>
+                  <input type="tel" id="facilityPhone" required />
+                </label>
+                <label class="field">
+                  <span>Pilih fasilitas</span>
+                  <select id="facilitySelect" required></select>
+                </label>
+                <label class="field">
+                  <span>Waktu peminjaman</span>
+                  <input type="datetime-local" id="facilityTime" required />
+                </label>
+                <label class="field full">
+                  <span>Catatan</span>
+                  <textarea id="facilityNote" rows="3"></textarea>
+                </label>
+              </div>
+              <button class="btn primary" type="submit">Simpan peminjaman</button>
+            </form>
+
+            <form class="panel hidden" id="equipmentForm">
+              <h3>Form peminjaman perlengkapan</h3>
+              <div class="form-grid">
+                <label class="field">
+                  <span>Nama peminjam</span>
+                  <input type="text" id="equipmentBorrower" required />
+                </label>
+                <label class="field">
+                  <span>Nomor HP</span>
+                  <input type="tel" id="equipmentPhone" required />
+                </label>
+                <label class="field">
+                  <span>Pilih perlengkapan</span>
+                  <select id="equipmentSelect" required></select>
+                </label>
+                <label class="field">
+                  <span>Jumlah unit</span>
+                  <input type="number" id="equipmentQty" min="1" value="1" required />
+                </label>
+                <label class="field">
+                  <span>Waktu peminjaman</span>
+                  <input type="datetime-local" id="equipmentTime" required />
+                </label>
+                <label class="field full">
+                  <span>Catatan</span>
+                  <textarea id="equipmentNote" rows="3"></textarea>
+                </label>
+              </div>
+              <button class="btn primary" type="submit">Simpan peminjaman</button>
+            </form>
+
+            <div class="panel receipt">
+              <h3>Bukti peminjaman digital</h3>
+              <p>Pesan otomatis untuk WhatsApp peminjam.</p>
+              <pre id="receiptPreview">
+ID: -
+Nama: -
+Aset: -
+Waktu pinjam: -
+Status: Menunggu input
+              </pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-pengembalian">
+          <div class="section-head">
+            <div>
+              <h2>Pengembalian</h2>
+            </div>
+          </div>
+
+          <div class="form-layout two">
+            <form class="panel" id="returnForm">
+              <h3>Form pengembalian</h3>
+              <div class="form-grid">
+                <label class="field">
+                  <span>Peminjaman aktif</span>
+                  <select id="returnSelect" required></select>
+                </label>
+                <label class="field">
+                  <span>Kondisi akhir</span>
+                  <select id="returnCondition" required>
+                    <option value="Baik">Baik</option>
+                    <option value="Perlu pengecekan">Perlu pengecekan</option>
+                    <option value="Perlu perbaikan">Perlu perbaikan</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Waktu pengembalian</span>
+                  <input type="datetime-local" id="returnTime" required />
+                </label>
+                <label class="field full">
+                  <span>Catatan kondisi</span>
+                  <textarea id="returnNote" rows="3"></textarea>
+                </label>
+              </div>
+              <button class="btn primary" type="submit">Simpan pengembalian</button>
+            </form>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Daftar peminjaman aktif</h3>
+                <span class="badge">Monitoring</span>
+              </div>
+              <div class="list" id="returnLoanList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-aset">
+          <div class="section-head">
+            <div>
+              <h2>Pengelolaan aset</h2>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Fasilitas</h3>
+                <span class="badge">Unit ruang</span>
+              </div>
+              <form class="inline-form" id="facilityAddForm">
+                <input type="text" id="facilityName" placeholder="Nama fasilitas" required />
+                <input type="text" id="facilityDesc" placeholder="Deskripsi singkat" />
+                <button class="btn outline" type="submit">Tambah</button>
+              </form>
+              <div class="asset-list" id="facilityList"></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Perlengkapan</h3>
+                <span class="badge">Unit barang</span>
+              </div>
+              <form class="inline-form" id="equipmentAddForm">
+                <input type="text" id="equipmentName" placeholder="Nama perlengkapan" required />
+                <input type="number" id="equipmentTotal" placeholder="Total unit" min="1" required />
+                <button class="btn outline" type="submit">Tambah</button>
+              </form>
+              <div class="asset-list" id="equipmentList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-riwayat">
+          <div class="section-head">
+            <div>
+              <h2>Riwayat peminjaman</h2>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="table-actions">
+              <input
+                type="search"
+                id="historySearch"
+                placeholder="Cari nama, aset, atau ID"
+              />
+              <select id="historyStatusFilter">
+                <option value="all">Semua status</option>
+                <option value="Aktif">Aktif</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+              <button class="btn ghost">Ekspor</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Peminjam</th>
+                    <th>Aset</th>
+                    <th>Mulai</th>
+                    <th>Selesai</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast">Notifikasi terkirim.</div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
